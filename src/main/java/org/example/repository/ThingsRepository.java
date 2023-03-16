@@ -7,11 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ThingsRepository extends MongoRepository<Things, String> {
     List<Things> findByUser(int user);
-
-    @DeleteQuery
-    void deleteById(ObjectId objectId);
 }

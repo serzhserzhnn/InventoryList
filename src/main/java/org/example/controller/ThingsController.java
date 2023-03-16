@@ -1,6 +1,7 @@
 package org.example.controller;
 
-import org.bson.types.ObjectId;
+import org.example.email.BodyMail;
+import org.example.email.SendMail;
 import org.example.entity.Things;
 import org.example.repository.ThingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -18,21 +18,40 @@ import java.util.List;
 @RequestMapping(value = "/inventory", consumes = MediaType.ALL_VALUE)
 public class ThingsController {
 
-    @Autowired
     ThingsRepository thingsRepository;
 
+    @Autowired
+    private void setThingsRepository(ThingsRepository thingsRepository) {
+        this.thingsRepository = thingsRepository;
+    }
+
+    SendMail sendMail;
+
+    @Autowired
+    private void setSendMail(SendMail sendMail) {
+        this.sendMail = sendMail;
+    }
+
+    BodyMail bodyMail;
+
+    @Autowired
+    private void setBodyMail(BodyMail bodyMail) {
+        this.bodyMail = bodyMail;
+    }
+
+
     @GetMapping("/things_list")
-    public ResponseEntity<List<Things>> getAllTutorials(@RequestParam(required = false) int user) {
+    public ResponseEntity<List<Things>> getAllThings(@RequestParam(required = false) int user) {
         try {
-            List<Things> tutorials = new ArrayList<>();
+            List<Things> things = new ArrayList<>();
 
-            thingsRepository.findByUser(user).forEach(tutorials::add);
+            thingsRepository.findByUser(user).forEach(things::add);
 
-            if (tutorials.isEmpty()) {
+            if (things.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
-            return new ResponseEntity<>(tutorials, HttpStatus.OK);
+            return new ResponseEntity<>(things, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -45,6 +64,17 @@ public class ThingsController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/things_list/sendmail")
+    public void sendMail(@RequestParam(required = false) int user) {
+        try {
+            String body = bodyMail.sendList(user);
+
+            sendMail.Send("Test", body);
+        } catch (Exception e) {
+            e.getMessage();
         }
     }
 
