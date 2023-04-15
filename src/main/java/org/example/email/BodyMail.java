@@ -19,10 +19,9 @@ public class BodyMail {
         this.thingsRepository = thingsRepository;
     }
 
-    public String sendList(int userId) {
-        List<Things> things = new ArrayList<>();
+    public String sendList(String userId) {
 
-        thingsRepository.findByUser(userId).forEach(things::add);
+        List<Things> things = new ArrayList<>(thingsRepository.findByUser(userId));
 
         if (things.isEmpty()) {
             return "List of User is empty";

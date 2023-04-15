@@ -10,8 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -39,21 +41,34 @@ public class ThingsController {
         this.bodyMail = bodyMail;
     }
 
-
     @GetMapping("/things_list")
-    public ResponseEntity<List<Things>> getAllThings(@RequestParam(required = false) int user) {
+    public ResponseEntity<List<Things>> getAllThings(@RequestParam(required = false) String user) {
         try {
             List<Things> things = new ArrayList<>();
 
-            thingsRepository.findByUser(user).forEach(things::add);
+            things.addAll(thingsRepository.findByUser(user));
 
             if (things.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-
             return new ResponseEntity<>(things, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/add_thing")
+    public ResponseEntity<Things> create(@Valid @RequestBody Things things) {
+        try {
+            Optional<Things> check = thingsRepository.findByUserAndThingId(things.getUser(), things.getThingId());
+            if (!check.isPresent()) {
+                thingsRepository.save(things);
+                return new ResponseEntity<>(HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -67,8 +82,18 @@ public class ThingsController {
         }
     }
 
+    @DeleteMapping("/remove_things_list/{user}")
+    public ResponseEntity<HttpStatus> deleteAllThings(@PathVariable("user") String user) {
+        try {
+            thingsRepository.deleteAllByUser(user);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/things_list/sendmail")
-    public void sendMail(@RequestParam(required = false) int user) {
+    public void sendMail(@RequestParam(required = false) String user) {
         try {
             String body = bodyMail.sendList(user);
 
@@ -109,14 +134,4 @@ public class ThingsController {
 //        }
 //    }
 //
-//    @DeleteMapping("/things_list")
-//    public ResponseEntity<HttpStatus> deleteAllThings() {
-//        try {
-//            thingsService.deleteAll();
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
 }

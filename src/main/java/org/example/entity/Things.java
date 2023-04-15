@@ -33,16 +33,14 @@ public class Things {
         this.user = user;
     }
 
-//    public Things(Long id, String name, String description, String location, Integer category, Integer quantity, String dateStart, String dateEnd) {
-//        this.id = id;
-//        this.name = name;
-//        this.description = description;
-//        this.location = location;
-//        this.category = category;
-//        this.quantity = quantity;
-//        this.dateStart = dateStart;
-//        this.dateEnd = dateEnd;
-//    }
+    public Things(String thingId, String name, String description, String category, String user) {
+        this.thingId = thingId;
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.user = user;
+    }
+
 
     public String getThingId() {
         return thingId;
