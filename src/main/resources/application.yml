@@ -11,3 +11,5 @@ spring:
       database: inventory
       host: localhost
       port: 27017
+  kafka:
+    bootstrap-servers: localhost:9092

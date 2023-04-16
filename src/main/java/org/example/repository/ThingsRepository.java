@@ -9,7 +9,9 @@ import java.util.Optional;
 public interface ThingsRepository extends MongoRepository<Things, String> {
     List<Things> findByUser(String user);
 
-    Optional <Things> findByUserAndThingId(String user, String thingId);
+    Optional<Things> findByUserAndThingId(String user, String thingId);
+
+    List<Things> findByThingId(String thingId);
 
     void deleteAllByUser(String user);
 }
