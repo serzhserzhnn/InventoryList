@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(value = "/inventory", consumes = MediaType.ALL_VALUE)
 public class ThingsController {
@@ -86,6 +86,17 @@ public class ThingsController {
     public ResponseEntity<HttpStatus> deleteAllThings(@PathVariable("user") String user) {
         try {
             thingsRepository.deleteAllByUser(user);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/remove_things_selected")
+    public ResponseEntity<HttpStatus> deleteAllSelectedThings(@RequestBody List<String> things) {
+        try {
+            List<String> thingsSelect = new ArrayList<>(things);
+            thingsRepository.deleteByIdIn(thingsSelect);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

@@ -13,5 +13,7 @@ public interface ThingsRepository extends MongoRepository<Things, String> {
 
     List<Things> findByThingId(String thingId);
 
+    void deleteByIdIn(List<String> strings);
+
     void deleteAllByUser(String user);
 }
