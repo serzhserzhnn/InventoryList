@@ -1,19 +1,26 @@
-package org.example.repository;
+package org.example.service;
 
 import org.example.entity.Things;
-import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ThingsRepository extends MongoRepository<Things, String> {
+public interface ThingsService {
     List<Things> findByUser(String user);
 
     Optional<Things> findByUserAndThingId(String user, String thingId);
 
     List<Things> findByThingId(String thingId);
 
-    void deleteByIdIn(List<String> ids);
+    void deleteByIdIn(List<String> strings);
 
     void deleteAllByUser(String user);
+
+    void save(Things things);
+
+    void update(Things things);
+
+    void deleteById(String id);
+
+    void delete(Things things);
 }

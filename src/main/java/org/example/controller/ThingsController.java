@@ -1,9 +1,11 @@
 package org.example.controller;
 
+import org.example.dto.ThingsDTO;
 import org.example.email.BodyMail;
 import org.example.email.SendMail;
 import org.example.entity.Things;
-import org.example.repository.ThingsRepository;
+import org.example.service.ThingsService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,11 +22,18 @@ import java.util.Optional;
 @RequestMapping(value = "/inventory", consumes = MediaType.ALL_VALUE)
 public class ThingsController {
 
-    ThingsRepository thingsRepository;
+    ThingsService thingsService;
 
     @Autowired
-    private void setThingsRepository(ThingsRepository thingsRepository) {
-        this.thingsRepository = thingsRepository;
+    private void setThingsService(ThingsService thingsService) {
+        this.thingsService = thingsService;
+    }
+
+    ModelMapper modelMapper;
+
+    @Autowired
+    private void setMapper(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
     }
 
     SendMail sendMail;
@@ -45,8 +54,7 @@ public class ThingsController {
     public ResponseEntity<List<Things>> getAllThings(@RequestParam(required = false) String user) {
         try {
             List<Things> things = new ArrayList<>();
-
-            things.addAll(thingsRepository.findByUser(user));
+            things.addAll(thingsService.findByUser(user));
 
             if (things.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -58,11 +66,12 @@ public class ThingsController {
     }
 
     @PostMapping("/add_thing")
-    public ResponseEntity<Things> create(@Valid @RequestBody Things things) {
+    public ResponseEntity<Things> create(@Valid @RequestBody ThingsDTO thingsDTO) {
         try {
-            Optional<Things> check = thingsRepository.findByUserAndThingId(things.getUser(), things.getThingId());
+            Things things = convertToEntity(thingsDTO);
+            Optional<Things> check = thingsService.findByUserAndThingId(things.getUser(), things.getThingId());
             if (!check.isPresent()) {
-                thingsRepository.save(things);
+                thingsService.save(things);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             } else {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -75,7 +84,7 @@ public class ThingsController {
     @DeleteMapping("/things_list/{id}")
     public ResponseEntity<HttpStatus> deleteThing(@PathVariable("id") String id) {
         try {
-            thingsRepository.deleteById(id);
+            thingsService.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -85,7 +94,7 @@ public class ThingsController {
     @DeleteMapping("/remove_things_list/{user}")
     public ResponseEntity<HttpStatus> deleteAllThings(@PathVariable("user") String user) {
         try {
-            thingsRepository.deleteAllByUser(user);
+            thingsService.deleteAllByUser(user);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -96,7 +105,7 @@ public class ThingsController {
     public ResponseEntity<HttpStatus> deleteAllSelectedThings(@RequestBody List<String> things) {
         try {
             List<String> thingsSelect = new ArrayList<>(things);
-            thingsRepository.deleteByIdIn(thingsSelect);
+            thingsService.deleteByIdIn(thingsSelect);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -114,35 +123,11 @@ public class ThingsController {
         }
     }
 
-//    ThingsService thingsService;
-//
-//    public void setThingsService(ThingsService thingsService) {
-//        this.thingsService = thingsService;
-//    }
-//
-//    @GetMapping(value = "/things_list", produces = "application/json;charset=UTF-8")
-//    public ResponseEntity<List<Things>> getAll() {
-//        try {
-//            List<Things> thingsList = new ArrayList<>();
-//
-//            thingsService.getAll().forEach(thingsList::add);
-//            if (thingsList.isEmpty()) {
-//                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//            }
-//            return new ResponseEntity<>(thingsList, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @DeleteMapping("/things_list/{id}")
-//    public ResponseEntity<HttpStatus> deleteThing(@PathVariable("id") int id) {
-//        try {
-//            thingsService.delete(id);
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
+    private ThingsDTO convertToDto(Things things) {
+        return modelMapper.map(things, ThingsDTO.class);
+    }
+
+    private Things convertToEntity(ThingsDTO thingsDTO) {
+        return modelMapper.map(thingsDTO, Things.class);
+    }
 }
