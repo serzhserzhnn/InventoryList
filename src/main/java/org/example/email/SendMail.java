@@ -32,9 +32,7 @@ public class SendMail {
 
             msg.setSubject(subject, "UTF-8");
 
-            msg.setContent(body,"text/html");
-
-            //msg.setText(body, "UTF-8"); //просто текст
+            msg.setContent(body, "text/html");
 
             msg.setSentDate(new Date());
 
@@ -48,11 +46,8 @@ public class SendMail {
         }
     }
 
-    public void Send(String subjects, String body) {
-
-        final String fromEmail = "javaparsing@gmail.com"; //requires valid gmail id
-        final String password = "qajdjkfkldkqtjtn"; // correct password for gmail id
-        final String toEmail = "sergey_zem_87@mail.ru"; // can be any email id
+    public void Send(String fromEmail, String password, String toEmail,
+                     String subjects, String body) {
 
         System.out.println("TLSEmail Start");
 
@@ -66,6 +61,7 @@ public class SendMail {
         //create Authenticator object to pass in Session.getInstance argument
         Authenticator auth = new Authenticator() {
             //override the getPasswordAuthentication method
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(fromEmail, password);
             }

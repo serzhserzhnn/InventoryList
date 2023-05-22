@@ -13,14 +13,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping(value = "/inventory", consumes = MediaType.ALL_VALUE)
+@RequestMapping(value = "/inventory_list", consumes = MediaType.ALL_VALUE)
 public class ThingsController {
+
+    InputStream inputStream;
 
     ThingsService thingsService;
 
@@ -112,12 +116,20 @@ public class ThingsController {
         }
     }
 
-    @GetMapping("/things_list/sendmail")
-    public void sendMail(@RequestParam(required = false) String user) {
+    @GetMapping("/things_list/sendmail/{user}")
+    public void sendMail(@PathVariable("user") String user,
+                         @RequestParam(required = false) String email) {
         try {
-            String body = bodyMail.sendList(user);
+            Properties prop = new Properties();
+            String propFileName = "config.properties";
+            inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
+            prop.load(inputStream);
 
-            sendMail.Send("Test", body);
+            String fromEmail = prop.getProperty("email");
+            String password = prop.getProperty("password");
+
+            String body = bodyMail.sendList(user);
+            sendMail.Send(fromEmail, password, email, "Test", body);
         } catch (Exception e) {
             e.getMessage();
         }
