@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.entity.Things;
 import org.example.repository.ThingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,12 +45,9 @@ public class ThingsServiceImp implements ThingsService {
     }
 
     @Override
-    public void save(Things things) {
+    public ResponseEntity<Object> save(Things things) {
         thingsRepository.save(things);
-    }
-
-    @Override
-    public void update(Things things) {
+        return null;
     }
 
     @Override

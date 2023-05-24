@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.entity.Things;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +17,7 @@ public interface ThingsService {
 
     void deleteAllByUser(String user);
 
-    void save(Things things);
-
-    void update(Things things);
+    ResponseEntity<Object> save(Things things);
 
     void deleteById(String id);
 

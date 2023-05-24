@@ -54,11 +54,15 @@ public class ThingsController {
         this.bodyMail = bodyMail;
     }
 
+    /**
+     * Запрос списка всех вещей
+     *
+     * @return JSON-массив {@link Things}
+     */
     @GetMapping("/things_list")
     public ResponseEntity<List<Things>> getAllThings(@RequestParam(required = false) String user) {
         try {
-            List<Things> things = new ArrayList<>();
-            things.addAll(thingsService.findByUser(user));
+            List<Things> things = new ArrayList<>(thingsService.findByUser(user));
 
             if (things.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -69,6 +73,13 @@ public class ThingsController {
         }
     }
 
+    /**
+     * Запрос на добавление вещи
+     *
+     * @param thingsDTO - объект {@link Things}
+     * @return - status code 201 если {@link Things} создан;
+     * status code 409 если вещь у пользователя добавлена ранее
+     */
     @PostMapping("/add_thing")
     public ResponseEntity<Things> create(@Valid @RequestBody ThingsDTO thingsDTO) {
         try {
@@ -85,6 +96,12 @@ public class ThingsController {
         }
     }
 
+    /**
+     * Запрос на удаление вещи по id
+     *
+     * @param id - id вещи
+     * @return - status code 204
+     */
     @DeleteMapping("/things_list/{id}")
     public ResponseEntity<HttpStatus> deleteThing(@PathVariable("id") String id) {
         try {
@@ -95,6 +112,12 @@ public class ThingsController {
         }
     }
 
+    /**
+     * Запрос на удаление всех вещей по id пользователя
+     *
+     * @param user - id пользователя
+     * @return - status code 204
+     */
     @DeleteMapping("/remove_things_list/{user}")
     public ResponseEntity<HttpStatus> deleteAllThings(@PathVariable("user") String user) {
         try {
@@ -105,6 +128,11 @@ public class ThingsController {
         }
     }
 
+    /**
+     * Запрос на удаление выбранных вещей по списку id
+     *
+     * @return - status code 204
+     */
     @PostMapping("/remove_things_selected")
     public ResponseEntity<HttpStatus> deleteAllSelectedThings(@RequestBody List<String> things) {
         try {
@@ -116,6 +144,12 @@ public class ThingsController {
         }
     }
 
+    /**
+     * Отправка спика вещей на почтовый адрес пользователя\новый адрес
+     *
+     * @param user - id пользователя для получения спика
+     * @param  email - адрес электронной почты
+     */
     @GetMapping("/things_list/sendmail/{user}")
     public void sendMail(@PathVariable("user") String user,
                          @RequestParam(required = false) String email) {
@@ -129,14 +163,10 @@ public class ThingsController {
             String password = prop.getProperty("password");
 
             String body = bodyMail.sendList(user);
-            sendMail.Send(fromEmail, password, email, "Test", body);
+            sendMail.sends(fromEmail, password, email, "Test", body);
         } catch (Exception e) {
             e.getMessage();
         }
-    }
-
-    private ThingsDTO convertToDto(Things things) {
-        return modelMapper.map(things, ThingsDTO.class);
     }
 
     private Things convertToEntity(ThingsDTO thingsDTO) {

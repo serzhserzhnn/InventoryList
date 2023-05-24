@@ -37,19 +37,15 @@ public class SendMail {
             msg.setSentDate(new Date());
 
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-            System.out.println("Message is ready");
             Transport.send(msg);
 
-            System.out.println("EMail Sent Successfully!!");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void Send(String fromEmail, String password, String toEmail,
+    public void sends(String fromEmail, String password, String toEmail,
                      String subjects, String body) {
-
-        System.out.println("TLSEmail Start");
 
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
